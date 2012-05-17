@@ -3,8 +3,6 @@ package Lemonade::Role::Cart;
 use strict;
 use warnings;
 
-use Lemonade;
-
 =head2 add
 
 Retrieve's cart ref from session.
@@ -66,7 +64,7 @@ Params:
 sub cart_subtotal {
    my ($self, $params) = @_;
    
-   my $cart = $self->retrieve({ name => $params->{name} || 'default' });
+   my $cart = $self->retrieve({ name => $params->{name} });
    
    my $subtotal = 0;
    
@@ -76,6 +74,58 @@ sub cart_subtotal {
         for my $item (@$cart);
 
    return sprintf("%.02f", $subtotal);
+}
+
+=head2 list_carts
+
+Returns an array ref 
+of active cart names
+in session.
+    
+=cut 
+
+sub list_carts{
+  return [keys %{shift->retrieve({ fetch_all => 1 })}];
+}
+
+=head2 add_item_attribtues
+
+Add/modifies current
+attributes of an item.
+    
+=cut 
+
+sub add_item_attribtues{
+  my ($self, $params, %atttr) = @_;
+  return unless $params->{sku};
+
+  my $cart = $self->retrieve({ name => $params->{name}});
+
+  die "Item not available in cart"
+    unless exists $cart->{$params->{sku}};
+
+  $cart->{$params->{sku}} = {
+    %{$cart->{$params->{sku}}},
+    %attr
+  };
+}
+
+=head2 remove_item_attribtues
+
+Removes attributes of an item.
+    
+=cut 
+
+sub remove_item_attribtues{
+  my ($self, $params, @keys) = @_;
+  return unless $params->{sku};
+
+  my $cart = $self->retrieve({ name => $params->{name}});
+
+  die "Item not available in cart"
+    unless exists $cart->{$params->{sku}};
+
+  return { delete %{$cart}{@keys} };
 }
 
 =head1 AUTHOR
@@ -94,4 +144,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-'true?';
+1;
