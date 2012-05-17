@@ -1,4 +1,4 @@
-# Lemon::Config
+# Lemonade::Base
 # 
 # Copyright (C) 2012 Lemonade-Stand Development Group
 #
@@ -17,9 +17,18 @@
 # Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
 # MA  02110-1301  USA.
 
-package Lemon::Config;
-
+package Lemonade::Base;
 use strict;
 no warnings qw(uninitialized numeric);
 
+use Moose;
+use Lemonade::Plugin;
 
+sub initialize_plugins {
+    has $_->attribute_definition for (Lemonade::Plugin->list);
+    return 1;
+}
+
+no Moose;
+
+1;
