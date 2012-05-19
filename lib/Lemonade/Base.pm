@@ -29,6 +29,14 @@ sub initialize_plugins {
     return 1;
 }
 
+sub new{
+   my $class = shift;
+   my $self = {
+	
+	cart => ''
+	};	
+ bless $self, $class;
+}
 no Moose;
 
 1;
