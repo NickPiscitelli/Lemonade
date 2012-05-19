@@ -1,25 +1,27 @@
-package Lemonade::Role::Cart;
+package Lemonade::Plugins::Cart;
+
 
 use strict;
 use warnings;
-
+use Lemonade::Session;
 =head2 add
 
-Retrieve's cart ref from session.
+Retrieve's cart ref from $session.
 Params:
     fetch_all - returns hashref containing all carts
-    name - fetch specifc cart from session
+    name - fetch specifc cart from $session
     
 =cut 
+my $session = Lemonade::Session->new();
 
 sub retrieve {
-    my ($self, $params) = @_;
+  my ($self, $params) = @_;
 
-    my $carts = session->{cart};
-    
-    return $carts if $params->{fetch_all};
+  my $carts = $session->{cart};
+  
+  return $carts if $params->{fetch_all};
 
-    $carts->{$params->{name} || 'default'};
+  $carts->{$params->{name} || 'default'};
 }
 
 =head2 add
@@ -30,14 +32,14 @@ Adds an item to the cart.
 
 
 sub add {
-    my ($self, $params) = @_;
+  my ($self, $params) = @_;
 
-    return unless $params->{sku};
+  return unless $params->{sku};
 
-    return delete $params->{sku} unless $params->{quantity};
+  return delete $params->{sku} unless $params->{quantity};
 
-    $self->retrieve($params->{name})->{$params->{sku}}->{quantity} += 
-        $params->{quantity};
+  $self->retrieve($params->{name})->{$params->{sku}}->{quantity} += 
+    $params->{quantity};
 }
 
 =head2 delete
@@ -49,7 +51,7 @@ a quantity of zero.
 =cut 
 
 sub delete {
-    shift->add({ sku => shift->{sku}, quantity => 0 });
+  shift->add({ sku => shift->{sku}, quantity => 0 });
 }
 
 =head2 subtotal
@@ -62,25 +64,25 @@ Params:
 =cut 
 
 sub cart_subtotal {
-   my ($self, $params) = @_;
-   
-   my $cart = $self->retrieve({ name => $params->{name} });
-   
-   my $subtotal = 0;
-   
-   my $schema = $params->{price_scheme} || 'retail_price';
-   
-   $subtotal += $item->{$schema} * $item->{quantity}
-        for my $item (@$cart);
+  my ($self, $params) = @_;
+  
+  my $cart = $self->retrieve({ name => $params->{name} });
+  
+  my $subtotal = 0;
+  
+  my $schema = $params->{price_scheme} || 'retail_price';
+  
+  $subtotal += $_->{$schema} * $_->{quantity}
+       for (@$cart);
 
-   return sprintf("%.02f", $subtotal);
+  return sprintf("%.02f", $subtotal);
 }
 
 =head2 list_carts
 
 Returns an array ref 
 of active cart names
-in session.
+in $session.
     
 =cut 
 
@@ -96,7 +98,7 @@ attributes of an item.
 =cut 
 
 sub add_item_attribtues{
-  my ($self, $params, %atttr) = @_;
+  my ($self, $params, %attr) = @_;
   return unless $params->{sku};
 
   my $cart = $self->retrieve({ name => $params->{name}});
@@ -125,7 +127,9 @@ sub remove_item_attribtues{
   die "Item not available in cart"
     unless exists $cart->{$params->{sku}};
 
-  return { delete %{$cart}{@keys} };
+  delete $cart->{$_} for @keys;
+
+
 }
 
 =head1 AUTHOR
