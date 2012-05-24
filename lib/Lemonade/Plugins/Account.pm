@@ -13,13 +13,13 @@ use strict;
 use warnings;
 use Moose;
 
-=head2 juice
+=head2 session
 
 Contains lemonade session object.
   
 =cut 
 
-has 'juice' => (
+has 'session' => (
   is => 'rw',
   lazy => 1,
   default => ''
@@ -71,10 +71,10 @@ has 'user_attributes' =>(
 sub BUILD{
   my ($class, $params) = @_;
 
-  $class->juice($params->{session});
+  $class->session($params->{session});
 
   #create user ref in session on build
-  $class->juice->{user} = $class->user_attributes;
+  $class->session->{user} = $class->user_attributes;
 
   return;
 }
@@ -93,8 +93,8 @@ Params:
 sub retrieve {
   my ($self, $key) = @_;
   return $key ? 
-    $self->juice->{user} :
-    $self->juice->{user}->{$key};
+    $self->session->{user} :
+    $self->session->{user}->{$key};
 }
 
 =head2 update
@@ -131,14 +131,14 @@ sub update {
 
   if (ref $opt and ref $opt eq 'HASH'){
     for (keys %$opt){
-      $self->juice->{user}->{$_} = $opt->{$_}
-        if exists $self->juice->{user}->{$_};
+      $self->session->{user}->{$_} = $opt->{$_}
+        if exists $self->session->{user}->{$_};
     }
   }else{
     for (my @new = @_){
       last unless $opt;
-       $self->juice->{user}->{$opt} = shift
-        if exists $self->juice->{user}->{$opt};
+       $self->session->{user}->{$opt} = shift
+        if exists $self->session->{user}->{$opt};
       $opt = shift;
     }
   }

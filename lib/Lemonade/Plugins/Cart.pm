@@ -5,13 +5,13 @@ use warnings;
 use Moose;
 
 
-=head2 juice
+=head2 session
 
 Contains lemonade session object.
   
 =cut 
 
-has 'juice' => (
+has 'session' => (
     is => 'rw',
     lazy => 1,
     default => ''
@@ -21,10 +21,10 @@ has 'juice' => (
 sub BUILD{
   my ($class, $params) = @_;
 
-  $class->juice($params->{session});
+  $class->session($params->{session});
 
   #create cart ref in session on build
-  $class->juice->{carts} = {
+  $class->session->{carts} = {
     default => {}
   };
 
@@ -44,7 +44,7 @@ Params:
 
 sub retrieve {
   my ($self, $params) = @_;
-  my $carts = $self->juice->{carts};
+  my $carts = $self->session->{carts};
   
   return $carts if $params->{fetch_all};
   $carts->{$params->{name} or 'default'};
@@ -108,7 +108,7 @@ sub cart_subtotal {
 sub test{
   my ($cart, $lemonade)  = @_;
 
-  return $cart->juice->{id};
+  return $cart->session->{id};
 }
 
 =head1 AUTHOR

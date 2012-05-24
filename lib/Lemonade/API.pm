@@ -23,6 +23,7 @@ no warnings qw(uninitialized numeric);
 
 use Moose;
 use Lemonade::Plugin;
+
 =head1 cart
 
 cart namespace for lemonade object.
@@ -38,21 +39,21 @@ has 'cart' => (
     lazy => 1,
     default => sub {
         require Lemonade::Plugins::Cart;
-        Lemonade::Plugins::Cart->new( session => $_[0]->juice );
+        Lemonade::Plugins::Cart->new( session => $_[0]->session );
     }
 );
 
-=head1 juice
+=head1 session
 
 Session namespace for lemonade object.
 session was taken. Gives access to
 session module. 
 
-($?)lemonade->juice
+($?)lemonade->session
 
 =cut
 
-has 'juice' => (
+has 'session' => (
     is => 'rw',
     lazy => 1,
     default => sub {
@@ -62,22 +63,40 @@ has 'juice' => (
     }
 );
 
-=head1 juice
+=head1 dbh
 
-Account namespace for lemonade object.
-Gives access to account module. 
+Database namespace for lemonade object.
+Gives access to active DBH.
+
+($?)lemonade->dbh
+
+=cut
+
+has 'dbh' => (
+    is => 'ro',
+    lazy => 1,
+    default => sub {
+        #this probably needs to be changed
+        #it works for now. 
+        shift; shift;
+    },
+);
+
+=head1 account
+
+User namespace for lemonade object.
 
 ($?)lemonade->account
 
 =cut
 
-has 'user' => (
+has 'account' => (
     isa => 'Lemonade::Plugins::Account',
     is => 'ro',
     lazy => 1,
     default => sub {
         require Lemonade::Plugins::Account;
-        Lemonade::Plugins::Account->new( session => $_[0]->juice );
+        Lemonade::Plugins::Account->new( session => $_[0]->session );
     },
 );
 
